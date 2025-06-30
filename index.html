@@ -1745,5 +1745,56 @@
             }, 60 * 60 * 1000);
         });
     </script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+  import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBV1t5BtfoGoL0e17eaC5xorWzazbeMXFc",
+    authDomain: "nomago-bikes-portal.firebaseapp.com",
+    projectId: "nomago-bikes-portal",
+    storageBucket: "nomago-bikes-portal.firebasestorage.app",
+    messagingSenderId: "212881610247",
+    appId: "1:212881610247:web:a1393b8cd4c178684ebca2",
+    measurementId: "G-HZ9SFB0T64"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  document.getElementById("login-btn").addEventListener("click", async () => {
+    const username = document.getElementById("username").value.trim();
+    const password = document.getElementById("password").value;
+
+    if (!username || !password) {
+      alert("Vnesi uporabniško ime in geslo.");
+      return;
+    }
+
+    try {
+      const usersRef = collection(db, "uporabniki");
+      const q = query(usersRef, where("username", "==", username));
+      const querySnapshot = await getDocs(q);
+
+      if (querySnapshot.empty) {
+        alert("Uporabnik ne obstaja.");
+        return;
+      }
+
+      const userDoc = querySnapshot.docs[0];
+      const email = userDoc.data().email;
+
+      await signInWithEmailAndPassword(auth, email, password);
+      alert("Uspešna prijava!");
+      window.location.href = "portal.html";
+    } catch (error) {
+      alert("Napaka: " + error.message);
+    }
+  });
+</script>
+
 </body>
 </html>
